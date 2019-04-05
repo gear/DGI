@@ -10,7 +10,7 @@ dataset = 'cora'
 
 # training params
 batch_size = 1
-nb_epochs = 10000
+nb_epochs = 8000
 patience = 20
 lr = 0.001
 l2_coef = 0.0
