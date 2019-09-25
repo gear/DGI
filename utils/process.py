@@ -141,6 +141,27 @@ def load_data(dataset_str): # {'pubmed', 'citeseer', 'cora'}
 
     return adj, features, labels, idx_train, idx_val, idx_test
 
+def load_ba_high(eps):
+    # BA graph
+    g = nx.generators.random_graphs.barabasi_albert_graph(200, 10)
+    adj = nx.adjacency_matrix(g)
+    labels_1 = nx.algorithms.maximal_independent_set(g)
+    labels = [1 if i in labels_1 else 0 for i in g.nodes()]
+    labels_0 = [i for i,j in enumerate(labels) if j == 0]
+    labels = [[0,1] if i in labels_1 else [1,0] for i in g.nodes()]
+    
+    np.random.shuffle(labels_1)
+    np.random.shuffle(labels_0)
+
+    feats = np.array([np.random.normal(eps, 1.0, 50) if i in labels_1 else np.random.normal(-eps, 1.0, 50) for i in g.nodes()]) 
+    # Train/Val split
+    half = int(len(labels_1) / 2)
+    idx_train = labels_1[:half] + labels_0[:half]
+    idx_val = labels_1[half:] + labels_0[half:2*half]
+    
+    return adj, feats, np.array(labels), np.array(idx_train), np.array(idx_val), np.array(idx_val)
+
+
 def sparse_to_tuple(sparse_mx, insert_batch=False):
     """Convert sparse matrix to tuple representation."""
     """Set insert_batch=True if you want to insert a batch dimension."""

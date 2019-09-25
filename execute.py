@@ -6,7 +6,7 @@ import torch.nn as nn
 from models import DGI, LogReg
 from utils import process
 
-dataset = 'cora'
+dataset = 0.5
 
 # training params
 batch_size = 1
@@ -15,13 +15,16 @@ patience = 20
 lr = 0.001
 l2_coef = 0.0
 drop_prob = 0.0
-hid_units = 512
+hid_units = 256
 sparse = True
 nonlinearity = 'prelu' # special name to separate parameters
 
-adj, features, labels, idx_train, idx_val, idx_test = process.load_data(dataset)
-features, _ = process.preprocess_features(features)
-
+if dataset in ['cora', 'citeseer', 'pubmed']:
+    adj, features, labels, idx_train, idx_val, idx_test = process.load_data(dataset)
+    features, _ = process.preprocess_features(features)
+else:
+    adj, features, labels, idx_train, idx_val, idx_test = process.load_ba_high(dataset)
+    
 nb_nodes = features.shape[0]
 ft_size = features.shape[1]
 nb_classes = labels.shape[1]
@@ -141,7 +144,7 @@ for _ in range(50):
     print(acc)
     tot += acc
 
-print('Average accuracy:', tot / 50)
+print('Average accuracy:', tot / 10)
 
 accs = torch.stack(accs)
 print(accs.mean())
